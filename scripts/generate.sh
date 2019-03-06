@@ -4,6 +4,13 @@ echo "FROM buildpack-deps:$(awk -F'_' '{print tolower($2)}' <<< $LINUX_VERSION)"
 
 echo "RUN apt-get update"
 
+echo "RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y locales"
+
+echo "RUN sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && \
+      dpkg-reconfigure --frontend=noninteractive locales && \
+      update-locale LANG=en_US.UTF-8"
+
+echo "ENV LANG en_US.UTF-8"
 if [ ! -e $RUBY_VERSION_NUM ] ; then
     echo "RUN apt-get install -y libssl-dev && wget http://ftp.ruby-lang.org/pub/ruby/$(awk -F'.' '{ print $1"."$2 }' <<< $RUBY_VERSION_NUM)/ruby-$RUBY_VERSION_NUM.tar.gz && \
     tar -xzvf ruby-$RUBY_VERSION_NUM.tar.gz && \
@@ -23,7 +30,10 @@ if [ ! -e $NODE_VERSION_NUM ] ; then
     make -j4 && \
     make install && \
     cd .. && \
-    rm -r node-v$NODE_VERSION_NUM"
+    rm -r node-v$NODE_VERSION_NUM && \
+    curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - && \
+    echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list && \
+    apt-get update && apt-get install yarn"
 fi
 
 if [ ! -e $PYTHON_VERSION_NUM ] ; then
