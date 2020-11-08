@@ -66,11 +66,8 @@ RUN if [ \$(grep 'VERSION_ID="8"' /etc/os-release) ] ; then \\
 ; elif [ \$(grep 'VERSION_ID="16.04"' /etc/os-release) ] ; then \\
     apt-get update && \\
     apt-get --force-yes -y install software-properties-common python-software-properties && \\
-    echo | add-apt-repository -y ppa:linuxuprising/java && \\
     apt-get update && \\
-    echo debconf shared/accepted-oracle-license-v1-2 select true | debconf-set-selections && \\
-    echo debconf shared/accepted-oracle-license-v1-2 seen true | debconf-set-selections && \\
-    apt-get -y install oracle-java11-installer-local \\
+    apt-get -y install default-jdk \\
 ; fi
 EOF
 fi
